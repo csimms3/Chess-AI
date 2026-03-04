@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Chess, type Square } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
+import { useBoardWidth } from '../hooks/useBoardWidth';
 import type { ChessAI } from '../ai';
 
 interface ChessGameProps {
@@ -9,6 +10,7 @@ interface ChessGameProps {
 
 export function ChessGame({ ai }: ChessGameProps) {
   const [game, setGame] = useState(() => new Chess());
+  const boardWidth = useBoardWidth();
   const [gameOver, setGameOver] = useState(false);
 
   const makeMove = useCallback(
@@ -104,7 +106,7 @@ export function ChessGame({ ai }: ChessGameProps) {
           onPieceDrop={onDrop}
           onPromotionCheck={onPromotionCheck}
           onPromotionPieceSelect={onPromotionPieceSelect}
-          boardWidth={480}
+          boardWidth={boardWidth}
           customBoardStyle={{
             borderRadius: '8px',
             boxShadow: '0 8px 32px rgba(0,0,0,0.4)',

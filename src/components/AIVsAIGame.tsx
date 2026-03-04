@@ -2,11 +2,15 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Chess } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
 import { AI_OPPONENTS } from '../ai';
+import { useBoardWidth } from '../hooks/useBoardWidth';
 import type { ChessAI } from '../ai';
 
 const MIN_DELAY = 100;
 const MAX_DELAY = 3000;
 const DEFAULT_DELAY = 600;
+const MIN_BATCH = 1;
+const MAX_BATCH = 1000;
+const DEFAULT_BATCH = 10;
 
 export function AIVsAIGame() {
   const [game, setGame] = useState(() => new Chess());
@@ -109,6 +113,91 @@ export function AIVsAIGame() {
     setResult(null);
   }, [stopGame]);
 
+  const boardWidth = useBoardWidth();
+  const [batchCount, setBatchCount] = useState(DEFAULT_BATCH);
+  const [isRunningBatch, setIsRunningBatch] = useState(false);
+  const [batchProgress, setBatchProgress] = useState({ completed: 0, white: 0, black: 0, draws: 0 });
+  const [batchRunId, setBatchRunId] = useState(0);
+  const batchCancelRef = useRef(false);
+  const batchRunningRef = useRef(false);
+
+  const runBatch = useCallback(() => {
+    if (batchRunningRef.current) return;
+    batchRunningRef.current = true;
+    batchCancelRef.current = false;
+    setBatchRunId((id) => id + 1);
+    setBatchProgress({ completed: 0, white: 0, black: 0, draws: 0 });
+    setIsRunningBatch(true);
+
+    const total = Math.max(MIN_BATCH, Math.min(MAX_BATCH, batchCount));
+    const white = whiteAI;
+    const black = blackAI;
+
+    const runNextGame = (
+      gameIndex: number,
+      ai1Wins: number,
+      ai2Wins: number,
+      draws: number
+    ) => {
+      if (batchCancelRef.current || gameIndex >= total) {
+        batchRunningRef.current = false;
+        setIsRunningBatch(false);
+        return;
+      }
+
+      const swapColors = gameIndex % 2 === 1;
+      const w = swapColors ? black : white;
+      const b = swapColors ? white : black;
+
+      const g = new Chess();
+      while (!g.isGameOver() && !g.isDraw()) {
+        const ai = g.turn() === 'w' ? w : b;
+        const move = ai.getMove(g);
+        if (!move) break;
+        g.move({ from: move.from, to: move.to, promotion: move.promotion ?? 'q' });
+      }
+
+      let newAi1 = ai1Wins;
+      let newAi2 = ai2Wins;
+      let newDraws = draws;
+      if (g.isCheckmate()) {
+        const whiteWon = g.turn() === 'b';
+        if (swapColors) {
+          whiteWon ? newAi2++ : newAi1++;
+        } else {
+          whiteWon ? newAi1++ : newAi2++;
+        }
+      } else {
+        newDraws++;
+      }
+
+      const nextProgress = {
+        completed: gameIndex + 1,
+        white: newAi1,
+        black: newAi2,
+        draws: newDraws,
+      };
+      setBatchProgress(nextProgress);
+      requestAnimationFrame(() => {
+        if (batchCancelRef.current) return;
+        setTimeout(() => runNextGame(gameIndex + 1, newAi1, newAi2, newDraws), 0);
+      });
+    };
+
+    requestAnimationFrame(() => runNextGame(0, 0, 0, 0));
+  }, [batchCount, whiteAI, blackAI]);
+
+  const cancelBatch = useCallback(() => {
+    batchCancelRef.current = true;
+  }, []);
+
+  // Reset batch ref if component unmounts or batch was cancelled/completed
+  useEffect(() => {
+    if (!isRunningBatch) {
+      batchRunningRef.current = false;
+    }
+  }, [isRunningBatch]);
+
   return (
     <div className="ai-vs-ai">
       <div className="ai-vs-ai-controls">
@@ -186,12 +275,95 @@ export function AIVsAIGame() {
         </div>
       </div>
 
+      <div className="ai-vs-ai-batch">
+        <div className="ai-vs-ai-batch-header">
+          <h4>Batch games</h4>
+          <p className="ai-vs-ai-batch-desc">Run many games at maximum speed</p>
+        </div>
+        <div className="ai-vs-ai-batch-controls">
+          <label className="ai-vs-ai-batch-label">
+            <span>Games</span>
+            <input
+              type="number"
+              min={MIN_BATCH}
+              max={MAX_BATCH}
+              value={batchCount}
+              onChange={(e) => setBatchCount(Math.max(MIN_BATCH, Math.min(MAX_BATCH, Number(e.target.value) || MIN_BATCH)))}
+              disabled={isRunningBatch}
+              className="ai-vs-ai-batch-input"
+            />
+          </label>
+          {!isRunningBatch ? (
+            <button
+              type="button"
+              onClick={runBatch}
+              disabled={isPlaying}
+              className="btn-reset"
+            >
+              Run batch
+            </button>
+          ) : (
+            <button type="button" onClick={cancelBatch} className="btn-stop">
+              Cancel
+            </button>
+          )}
+        </div>
+        {(batchProgress.completed > 0 || isRunningBatch) && (
+          <div key={batchRunId} className="ai-vs-ai-batch-results">
+            <div className="ai-vs-ai-batch-progress">
+              {isRunningBatch
+                ? `Game ${batchProgress.completed} / ${batchCount}`
+                : `Complete: ${batchProgress.completed} games`}
+            </div>
+            <div className="ai-vs-ai-batch-bar">
+              {(() => {
+                const total = batchProgress.white + batchProgress.black + batchProgress.draws;
+                if (total === 0) return null;
+                return (
+                  <>
+                    <div
+                      className="ai-vs-ai-bar-segment ai-vs-ai-bar-white"
+                      style={{ width: `${(batchProgress.white / total) * 100}%` }}
+                      title={`${whiteAI.name}: ${batchProgress.white}`}
+                    />
+                    <div
+                      className="ai-vs-ai-bar-segment ai-vs-ai-bar-black"
+                      style={{ width: `${(batchProgress.black / total) * 100}%` }}
+                      title={`${blackAI.name}: ${batchProgress.black}`}
+                    />
+                    <div
+                      className="ai-vs-ai-bar-segment ai-vs-ai-bar-draw"
+                      style={{ width: `${(batchProgress.draws / total) * 100}%` }}
+                      title={`Draws: ${batchProgress.draws}`}
+                    />
+                  </>
+                );
+              })()}
+            </div>
+            <div className="ai-vs-ai-batch-legend">
+              <span className="ai-vs-ai-legend-item">
+                <span className="ai-vs-ai-legend-dot ai-vs-ai-legend-white" />
+                {whiteAI.name}: {batchProgress.white}
+              </span>
+              <span className="ai-vs-ai-legend-item">
+                <span className="ai-vs-ai-legend-dot ai-vs-ai-legend-black" />
+                {blackAI.name}: {batchProgress.black}
+              </span>
+              <span className="ai-vs-ai-legend-item">
+                <span className="ai-vs-ai-legend-dot ai-vs-ai-legend-draw" />
+                Draws: {batchProgress.draws}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="chess-board-wrapper">
         <Chessboard
           id="ai-vs-ai-board"
           position={game.fen()}
           arePiecesDraggable={false}
-          boardWidth={480}
+          boardWidth={boardWidth}
           customBoardStyle={{
             borderRadius: '8px',
             boxShadow: '0 8px 32px rgba(0,0,0,0.4)',

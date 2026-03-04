@@ -17,9 +17,14 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   font-family: 'Cormorant Garamond', Georgia, serif;
   background: var(--bg-dark);
   color: var(--text-primary);
@@ -35,7 +40,7 @@ body {
 }
 
 .header {
-  padding: 1.5rem 2rem;
+  padding: 1rem;
   text-align: center;
   border-bottom: 1px solid rgba(212, 168, 83, 0.2);
 }
@@ -88,7 +93,7 @@ body {
 
 .game-section-full {
   width: 100%;
-  max-width: 700px;
+  max-width: min(700px, 100%);
   margin: 0 auto;
 }
 
@@ -104,7 +109,7 @@ body {
   flex-direction: column;
   gap: 1rem;
   width: 100%;
-  max-width: 520px;
+  max-width: min(520px, 100%);
   padding: 1.25rem;
   background: var(--bg-panel);
   border-radius: 12px;
@@ -232,23 +237,159 @@ body {
   border-color: var(--accent-gold);
 }
 
+.ai-vs-ai-batch {
+  width: 100%;
+  max-width: min(520px, 100%);
+  padding: 1.25rem;
+  background: var(--bg-panel);
+  border-radius: 12px;
+  border: 1px solid rgba(212, 168, 83, 0.15);
+}
+
+.ai-vs-ai-batch-header h4 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.ai-vs-ai-batch-desc {
+  margin: 0 0 1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.ai-vs-ai-batch-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ai-vs-ai-batch-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ai-vs-ai-batch-label span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.ai-vs-ai-batch-input {
+  width: 5rem;
+  padding: 0.5rem 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid rgba(139, 156, 173, 0.3);
+  border-radius: 6px;
+}
+
+.ai-vs-ai-batch-results {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(139, 156, 173, 0.2);
+}
+
+.ai-vs-ai-batch-progress {
+  font-size: 0.9rem;
+  color: var(--accent-gold);
+  margin-bottom: 0.5rem;
+}
+
+.ai-vs-ai-batch-bar {
+  display: flex;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+.ai-vs-ai-bar-segment {
+  min-width: 0;
+  transition: width 0.15s ease;
+}
+
+.ai-vs-ai-bar-white {
+  background: linear-gradient(180deg, #edf2f7 0%, #cbd5e0 100%);
+}
+
+.ai-vs-ai-bar-black {
+  background: linear-gradient(180deg, #4a5568 0%, #2d3748 100%);
+}
+
+.ai-vs-ai-bar-draw {
+  background: linear-gradient(180deg, #718096 0%, #4a5568 100%);
+}
+
+.ai-vs-ai-batch-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.ai-vs-ai-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ai-vs-ai-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.ai-vs-ai-legend-white {
+  background: #cbd5e0;
+}
+
+.ai-vs-ai-legend-black {
+  background: #2d3748;
+}
+
+.ai-vs-ai-legend-draw {
+  background: #4a5568;
+}
+
 .main {
   flex: 1;
   display: flex;
   gap: 2rem;
-  padding: 2rem;
+  padding: 1rem;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+  min-width: 0;
 }
 
 .sidebar {
   flex-shrink: 0;
   width: 320px;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .main {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 .game-section {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -375,6 +516,8 @@ body {
 
 .chess-board-wrapper {
   margin: 0 auto;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .game-status {
