@@ -1,0 +1,243 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg-dark: #0f1419;
+  --bg-panel: #1a2332;
+  --bg-card: #243447;
+  --accent-gold: #d4a853;
+  --accent-warm: #c9a227;
+  --text-primary: #f0e6d3;
+  --text-muted: #8b9cad;
+  --square-dark: #2c5282;
+  --square-light: #edf2f7;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(212, 168, 83, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(44, 82, 130, 0.15) 0%, transparent 50%);
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 1.5rem 2rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(212, 168, 83, 0.2);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 2.25rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--accent-gold);
+  text-shadow: 0 0 24px rgba(212, 168, 83, 0.3);
+}
+
+.tagline {
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.sidebar {
+  flex-shrink: 0;
+  width: 320px;
+}
+
+.game-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.opponent-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg-panel);
+  border-radius: 8px;
+  border: 1px solid rgba(212, 168, 83, 0.3);
+}
+
+.opponent-rank {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  color: var(--accent-gold);
+  font-weight: 500;
+}
+
+.opponent-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.ai-selector {
+  background: var(--bg-panel);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(212, 168, 83, 0.15);
+}
+
+.ai-selector-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.ai-selector-subtitle {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.ai-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ai-card {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  text-align: left;
+  background: var(--bg-card);
+  border: 1px solid rgba(139, 156, 173, 0.2);
+  border-radius: 8px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-card:hover {
+  border-color: rgba(212, 168, 83, 0.4);
+  background: rgba(36, 52, 71, 0.8);
+}
+
+.ai-card.selected {
+  border-color: var(--accent-gold);
+  background: rgba(212, 168, 83, 0.12);
+  box-shadow: 0 0 0 2px rgba(212, 168, 83, 0.2);
+}
+
+.ai-rank {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--accent-gold);
+  margin-bottom: 0.25rem;
+}
+
+.ai-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.ai-desc {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.ai-algorithm {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.ai-algorithm summary {
+  cursor: pointer;
+  color: var(--accent-gold);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.ai-algorithm p {
+  margin: 0.5rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.chess-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chess-board-wrapper {
+  margin: 0 auto;
+}
+
+.game-status {
+  margin-top: 1.5rem;
+}
+
+.game-over {
+  text-align: center;
+}
+
+.game-over p {
+  margin: 0 0 1rem;
+  font-size: 1.125rem;
+  color: var(--accent-gold);
+}
+
+.btn-reset {
+  padding: 0.6rem 1.5rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--accent-gold);
+  color: var(--bg-dark);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-reset:hover {
+  background: var(--accent-warm);
+  transform: translateY(-1px);
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--text-muted);
+  font-style: italic;
+}
